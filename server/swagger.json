@@ -1,0 +1,391 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Postmake API",
+    "version": "v1"
+  },
+  "paths": {
+    "/login": {
+      "summary": "Login",
+      "post": {
+        "summary": "Faz login",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  }
+                },
+                "required": ["email", "password"],
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login realizado com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/register": {
+      "summary": "Registrar usuário",
+      "post": {
+        "summary": "Cria um usuário novo",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "usuário criado com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "token": {
+                      "type": "string"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/post": {
+      "summary": "Post",
+      "post": {
+        "summary": "Cria novos posts",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Post"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Post criado com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Post"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/feed": {
+      "summary": "Feed Post",
+      "get": {
+        "summary": "Lista os posts no feed",
+        "responses": {
+          "200": {
+            "description": "Lista de posts recebida com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "allOf": [
+                      {
+                        "$ref": "#/components/schemas/Post"
+                      },
+                      {
+                        "properties": {
+                          "react": {
+                            "$ref": "#/components/schemas/React"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/follow": {
+      "summary": "Seguidores",
+      "post": {
+        "summary": "Segue um usuário",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Seguindo usuário com sucesso!"
+          }
+        }
+      }
+    },
+    "/unfollow/{followed_user_id}": {
+      "summary": "Unfollow",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "followed_user_id",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "delete": {
+        "summary": "Para de seguir um usuário",
+        "responses": {
+          "204": {
+            "description": "Parou de segui com sucesso!"
+          }
+        }
+      }
+    },
+    "/react/{post_id}/{react_type}": {
+      "summary": "Reação",
+      "parameters": [
+        {
+          "in": "path",
+          "name": "post_id",
+          "schema": {
+            "type": "string"
+          },
+          "required": true
+        },
+        {
+          "in": "path",
+          "name": "react_type",
+          "schema": {
+            "enum": ["loved", "like", "dislike"],
+            "type": "string"
+          },
+          "required": true
+        }
+      ],
+      "post": {
+        "summary": "Reage ao um post",
+        "responses": {
+          "204": {
+            "description": "Reação realizada com sucesso!"
+          }
+        }
+      }
+    },
+    "/profile": {
+      "summary": "Perfil",
+      "get": {
+        "summary": "Retorna dados do perfil",
+        "responses": {
+          "200": {
+            "description": "Dados do perfil retornado com sucesso!",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "properties": {
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    },
+                    "posts": {
+                      "type": "array",
+                      "items": {
+                        "allOf": [
+                          {
+                            "$ref": "#/components/schemas/Post"
+                          },
+                          {
+                            "properties": {
+                              "react": {
+                                "$ref": "#/components/schemas/React"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "followers": {
+                      "type": "integer"
+                    }
+                  },
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/user": {
+      "summary": "Usuários",
+      "parameters": [
+        {
+          "in": "query",
+          "name": "search",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ],
+      "get": {
+        "summary": "Pesquisa usuários",
+        "responses": {
+          "200": {
+            "description": "Retorna usuários pesquisados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "properties": {
+          "_id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": ["_id", "name", "email", "password"],
+        "type": "object"
+      },
+      "Post": {
+        "properties": {
+          "_id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "user_id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "title": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "hashtags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "readOnly": true
+          }
+        },
+        "required": ["_id", "user_id", "title", "subject", "hashtags"],
+        "type": "object"
+      },
+      "React": {
+        "properties": {
+          "_id": {
+            "readOnly": true,
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "post_id": {
+            "type": "string",
+            "writeOnly": true
+          },
+          "type": {
+            "type": "string"
+          }
+        },
+        "required": ["_id", "user_id", "post_id", "type"],
+        "type": "object"
+      },
+      "Follow": {
+        "properties": {
+          "_id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "user_id": {
+            "type": "string",
+            "readOnly": true
+          },
+          "followed_user_id": {
+            "type": "string"
+          }
+        },
+        "required": ["_id", "user_id", "followed_user_id"],
+        "type": "object"
+      }
+    }
+  }
+}
